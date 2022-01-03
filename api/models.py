@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
 
@@ -18,17 +19,6 @@ class AgeRating(models.Model):
     class Meta:
         verbose_name = 'Возрастной рейтинг'
         verbose_name_plural = 'Возрастные рейтинги'
-
-    def __str__(self):
-        return self.name
-
-
-class Status(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Название статуса')
-
-    class Meta:
-        verbose_name = 'Статус выхода'
-        verbose_name_plural = 'Статусы выхода'
 
     def __str__(self):
         return self.name
@@ -70,15 +60,22 @@ class Character(models.Model):
 
 
 class Anime(models.Model):
+    class Status(models.TextChoices):
+        ANNOUNCED = 'AN', _('Анонсировано')
+        ONGOING = 'ON', _('Онгоинг')
+        RELEASED = 'RE', _('Вышедшее')
+
     name_rus = models.CharField(max_length=255, verbose_name='Русское название')
     name_jap = models.CharField(max_length=255, default='', verbose_name='Японское название')
+    poster = models.ImageField(default='', verbose_name='Постер')
     genres = models.ManyToManyField(Genre, related_name='anime', verbose_name='Жанры')
     characters = models.ManyToManyField(Character, related_name='anime', verbose_name='Персонажи')
     franchise = models.ForeignKey(Franchise, on_delete=models.CASCADE, verbose_name='Франшиза')
-    status = models.ForeignKey(Status, on_delete=models.CASCADE, verbose_name='Статус')
+    status = models.CharField(max_length=2, choices=Status.choices, default=Status.ANNOUNCED)
     age_rating = models.ForeignKey(AgeRating, on_delete=models.CASCADE, verbose_name='Возрастной статус')
     slug = models.SlugField(unique=True)
     description = models.TextField(verbose_name='Описание аниме')
+    number_of_episodes = models.PositiveSmallIntegerField(verbose_name='Количество эпизодов', default=0)
 
     class Meta:
         verbose_name = 'Аниме'
@@ -88,14 +85,18 @@ class Anime(models.Model):
         return self.name_rus
 
 
-class StarRating(models.Model):
+class CartAnime(models.Model):
+    class ViewStatus(models.TextChoices):
+        PLANNED = 'PL', _('Запланировано')
+        WATCH = 'WA', _('Смотрю')
+        VIEWED = 'VI', _('Просмотрено')
+        REVIEW = 'RE', _('Пересматриваю')
+        ABANDONED = 'AB', _('Брошено')
+        POSTPONED = 'PO', _('Отложено')
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
     anime = models.ForeignKey(Anime, on_delete=models.CASCADE, verbose_name='Аниме')
-    rating = models.PositiveSmallIntegerField(verbose_name='Оценка')
-
-    class Meta:
-        verbose_name = 'Оценочный рейтинг'
-        verbose_name_plural = 'Оценочные рейтинги'
-
-    def __str__(self):
-        return f'{self.user.username} - {self.anime.name_rus[:10]} - {self.rating}'
+    rating = models.PositiveSmallIntegerField(verbose_name='Оценка пользователя', blank=True, null=True)
+    number_of_episodes_watched = models.PositiveSmallIntegerField(verbose_name='Количество просмотренных эпизодов',
+                                                                  default=0)
+    view_status = models.CharField(max_length=2, choices=ViewStatus.choices, default=ViewStatus.PLANNED)
