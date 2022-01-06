@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import *
+from .models import Anime
 
 
 class AnimeForMainMenuSerializer(serializers.ModelSerializer):
@@ -10,10 +10,20 @@ class AnimeForMainMenuSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Anime
-        fields = ['id', 'name_rus', 'poster', 'slug', 'description']
+        fields = [
+            'id',
+            'name_rus',
+            'poster',
+            'slug',
+            'description'
+        ]
 
 
 class AnimeDetailsSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(source='get_status_display')
+    type = serializers.CharField(source='get_type_display')
+    genres = serializers.StringRelatedField(many=True)
+    age_rating = serializers.StringRelatedField()
 
     class Meta:
         model = Anime
