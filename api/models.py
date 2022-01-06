@@ -5,55 +5,48 @@ from django.utils.translation import gettext_lazy as _
 User = get_user_model()
 
 
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    nickname = models.CharField(max_length=63, verbose_name='Никнейм пользователя')
-    avatar = models.ImageField(verbose_name='Аватар пользователя')
-    about = models.TextField(verbose_name='"О себе" пользователя')
-
-
 class AgeRating(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Название возрастного рейтинга')
-    description = models.TextField(verbose_name='Описание возрастного рейтинга')
+    name = models.CharField(_('Название возрастного рейтинга'), max_length=255)
+    description = models.TextField(_('Описание возрастного рейтинга'))
 
     class Meta:
-        verbose_name = 'Возрастной рейтинг'
-        verbose_name_plural = 'Возрастные рейтинги'
+        verbose_name = _('Возрастной рейтинг')
+        verbose_name_plural = _('Возрастные рейтинги')
 
     def __str__(self):
         return self.name
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Название жанра')
-    description = models.TextField(verbose_name='Описание жанра')
+    name = models.CharField(_('Название жанра'), max_length=255)
+    description = models.TextField(_('Описание жанра'))
 
     class Meta:
-        verbose_name = 'Жанр'
-        verbose_name_plural = 'Жанры'
+        verbose_name = _('Жанр')
+        verbose_name_plural = _('Жанры')
 
     def __str__(self):
         return self.name
 
 
 class Franchise(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Название франшизы')
+    name = models.CharField(max_length=255, verbose_name=_('Название франшизы'))
 
     class Meta:
-        verbose_name = 'Франшиза'
-        verbose_name_plural = 'Франшизы'
+        verbose_name = _('Франшиза')
+        verbose_name_plural = _('Франшизы')
 
     def __str__(self):
         return self.name
 
 
 class Character(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Имя персонажа')
-    description = models.TextField(verbose_name='Описание персонажа')
+    name = models.CharField(_('Имя персонажа'), max_length=255)
+    description = models.TextField(_('Описание персонажа'))
 
     class Meta:
-        verbose_name = 'Персонаж'
-        verbose_name_plural = 'Персонажи'
+        verbose_name = _('Персонаж')
+        verbose_name_plural = _('Персонажи')
 
     def __str__(self):
         return self.name
@@ -65,21 +58,29 @@ class Anime(models.Model):
         ONGOING = 'ON', _('Онгоинг')
         RELEASED = 'RE', _('Вышедшее')
 
-    name_rus = models.CharField(max_length=255, verbose_name='Русское название')
-    name_jap = models.CharField(max_length=255, default='', verbose_name='Японское название')
-    poster = models.ImageField(default='', verbose_name='Постер')
-    genres = models.ManyToManyField(Genre, related_name='anime', verbose_name='Жанры')
-    characters = models.ManyToManyField(Character, related_name='anime', verbose_name='Персонажи')
-    franchise = models.ForeignKey(Franchise, on_delete=models.CASCADE, verbose_name='Франшиза')
-    status = models.CharField(max_length=2, choices=Status.choices, default=Status.ANNOUNCED)
-    age_rating = models.ForeignKey(AgeRating, on_delete=models.CASCADE, verbose_name='Возрастной статус')
+    class Type(models.TextChoices):
+        TV = 'TV', _('TV Сериал')
+        FILM = 'FM', _('Фильм')
+        OVA = 'OV', _('OVA')
+        ONA = 'ON', _('ONA')
+        SPECIAL = 'SP', _('Спешл')
+
+    name_rus = models.CharField(_('Русское название'), max_length=255)
+    name_jap = models.CharField(_('Японское название'), max_length=255, default='')
+    poster = models.ImageField(_('Постер'), default='')
+    genres = models.ManyToManyField(Genre, verbose_name=_('Жанры'), related_name='anime')
+    characters = models.ManyToManyField(Character, verbose_name=_('Персонажи'), related_name='anime')
+    franchise = models.ForeignKey(Franchise, verbose_name=_('Франшиза'), on_delete=models.CASCADE)
+    status = models.CharField(_('Статус выхода'), max_length=2, choices=Status.choices, default=Status.ANNOUNCED)
+    type = models.CharField(_('Тип аниме'), max_length=2, choices=Type.choices, default=Type.TV)
+    age_rating = models.ForeignKey(AgeRating, verbose_name=_('Возрастной статус'), on_delete=models.CASCADE)
     slug = models.SlugField(unique=True)
-    description = models.TextField(verbose_name='Описание аниме')
-    number_of_episodes = models.PositiveSmallIntegerField(verbose_name='Количество эпизодов', default=0)
+    description = models.TextField(_('Описание аниме'))
+    number_of_episodes = models.PositiveSmallIntegerField(_('Количество эпизодов'), default=0)
 
     class Meta:
-        verbose_name = 'Аниме'
-        verbose_name_plural = 'Аниме'
+        verbose_name = _('Аниме')
+        verbose_name_plural = _('Аниме')
 
     def __str__(self):
         return self.name_rus
@@ -94,9 +95,9 @@ class CartAnime(models.Model):
         ABANDONED = 'AB', _('Брошено')
         POSTPONED = 'PO', _('Отложено')
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
-    anime = models.ForeignKey(Anime, on_delete=models.CASCADE, verbose_name='Аниме')
-    rating = models.PositiveSmallIntegerField(verbose_name='Оценка пользователя', blank=True, null=True)
-    number_of_episodes_watched = models.PositiveSmallIntegerField(verbose_name='Количество просмотренных эпизодов',
-                                                                  default=0)
-    view_status = models.CharField(max_length=2, choices=ViewStatus.choices, default=ViewStatus.PLANNED)
+    user = models.ForeignKey(User, verbose_name=_('Пользователь'), on_delete=models.CASCADE)
+    anime = models.ForeignKey(Anime, verbose_name=_('Аниме'), on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField(_('Оценка пользователя'), blank=True, null=True)
+    number_of_episodes_watched = models.PositiveSmallIntegerField(_('Количество просмотренных эпизодов'), default=0)
+    view_status = models.CharField(_('Статус просмотра'), max_length=2, choices=ViewStatus.choices,
+                                   default=ViewStatus.PLANNED)

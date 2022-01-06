@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import *
+from . import views
 
 urlpatterns = [
-    path('anime/', AnimeForMainMenuView.as_view()),
-    path('anime/<slug:slug>', AnimeDetailsView.as_view()),
+    path('anime/', views.AnimeForMainMenuView.as_view(), name='anime-list'),
+    path('anime/<slug:slug>', views.AnimeDetailsView.as_view(), name='anime-detail'),
 ]
