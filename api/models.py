@@ -1,8 +1,6 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
-User = get_user_model()
+from django.conf import settings
 
 
 class AgeRating(models.Model):
@@ -95,9 +93,13 @@ class CartAnime(models.Model):
         ABANDONED = 'AB', _('Брошено')
         POSTPONED = 'PO', _('Отложено')
 
-    user = models.ForeignKey(User, verbose_name=_('Пользователь'), on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('Пользователь'), on_delete=models.CASCADE)
     anime = models.ForeignKey(Anime, verbose_name=_('Аниме'), on_delete=models.CASCADE)
     rating = models.PositiveSmallIntegerField(_('Оценка пользователя'), blank=True, null=True)
     number_of_episodes_watched = models.PositiveSmallIntegerField(_('Количество просмотренных эпизодов'), default=0)
     view_status = models.CharField(_('Статус просмотра'), max_length=2, choices=ViewStatus.choices,
                                    default=ViewStatus.PLANNED)
+
+    class Meta:
+        verbose_name = _('Аниме для списка')
+        verbose_name_plural = _('Аниме для списка')
