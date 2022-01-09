@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'users',
     'djoser',
     'rest_framework',
-    'rest_framework_simplejwt',
+    'rest_framework.authtoken',
     'corsheaders',
 ]
 
@@ -63,8 +63,14 @@ CORS_ORIGIN_WHITELIST = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     )
+}
+
+DJOSER = {
+    'SERIALIZERS': {
+        'current_user': 'users.serializers.ExtUserSerializer'
+    }
 }
 
 AUTH_USER_MODEL = 'users.User'
@@ -154,3 +160,4 @@ MEDIA_ROOT = BASE_DIR / 'media/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+APPEND_SLASH = False

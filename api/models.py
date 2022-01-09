@@ -93,12 +93,16 @@ class CartAnime(models.Model):
         ABANDONED = 'AB', _('Брошено')
         POSTPONED = 'PO', _('Отложено')
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('Пользователь'), on_delete=models.CASCADE)
-    anime = models.ForeignKey(Anime, verbose_name=_('Аниме'), on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('Пользователь'), related_name='cart_anime',
+                             on_delete=models.CASCADE)
+    anime = models.ForeignKey(Anime, verbose_name=_('Аниме'), related_name='cart_anime', on_delete=models.CASCADE)
     rating = models.PositiveSmallIntegerField(_('Оценка пользователя'), blank=True, null=True)
     number_of_episodes_watched = models.PositiveSmallIntegerField(_('Количество просмотренных эпизодов'), default=0)
     view_status = models.CharField(_('Статус просмотра'), max_length=2, choices=ViewStatus.choices,
                                    default=ViewStatus.PLANNED)
+
+    def __str__(self):
+        return f'{self.user} - {self.anime}'
 
     class Meta:
         verbose_name = _('Аниме для списка')

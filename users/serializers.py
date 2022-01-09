@@ -1,16 +1,30 @@
 from django.contrib.auth import get_user_model
-from rest_framework import serializers
+from djoser.serializers import UserSerializer
+
+from api.serializers import CartAnimeForProfileSerializer
 
 User = get_user_model()
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
+class ExtUserSerializer(UserSerializer):
+    class Meta(UserSerializer):
         model = User
         fields = (
-            'id',
-            'username',
+            'avatar',
+            'nickname',
+            'username'
+        )
+
+
+class UserProfileSerializer(UserSerializer):
+    cart_anime = CartAnimeForProfileSerializer(many=True)
+
+    class Meta(UserSerializer):
+        model = User
+        fields = (
             'nickname',
             'avatar',
-            'about'
+            'about',
+            'cart_anime',
+            'username'
         )

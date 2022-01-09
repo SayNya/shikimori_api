@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Anime
+from .models import Anime, CartAnime
 
 
 class AnimeForMainMenuSerializer(serializers.ModelSerializer):
@@ -28,3 +28,40 @@ class AnimeDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Anime
         fields = '__all__'
+
+
+class AnimeProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Anime
+        fields = (
+            'id',
+            'name_rus',
+            'slug',
+            'number_of_episodes'
+        )
+
+
+class CartAnimeForProfileSerializer(serializers.ModelSerializer):
+    view_status = serializers.CharField(source='get_view_status_display')
+    anime = AnimeProfileSerializer()
+
+    class Meta:
+        model = CartAnime
+        fields = (
+            'id',
+            'anime',
+            'rating',
+            'number_of_episodes_watched',
+            'view_status'
+        )
+
+
+class CartAnimeUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartAnime
+        fields = (
+            'id',
+            'rating',
+            'number_of_episodes_watched',
+            'view_status'
+        )
